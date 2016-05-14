@@ -42,7 +42,7 @@ public class Server implements Runnable {
 
 	public void ServerClass()
 	{
-		SubClientList.add(new SubClient("129123", "asdfasfd", null));
+		
 	}
 	
 	public void connect()
@@ -83,7 +83,8 @@ public class Server implements Runnable {
 
 			inputStream = new ObjectInputStream(srvSocket.getInputStream());
 	        //outputStream = new ObjectOutputStream(srvSocket.getOutputStream());
-	        
+			SubClientList.add(new SubClient("129123", "asdfasfd", null));
+			SubClientList.add(new SubClient("1291232", "asdfasfd2", null));
 			in = (SubClient) inputStream.readObject();
 			SubClientList.add(new SubClient(in.getIP(), in.getName(), in.getList()));
 			

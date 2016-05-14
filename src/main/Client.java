@@ -6,12 +6,10 @@ package main;
  * Client.java
  */
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -26,10 +24,6 @@ import java.util.List;
 import java.util.Scanner;
 
 
-/**
- * @author Andreas
- *
- */
 public class Client {
 	private String serverIp;
 	private int serverPort;
@@ -51,6 +45,8 @@ public class Client {
 		myIp = "192.168.1.101";
 		myName = "Client name";
 	}
+	
+	
 	
 	public void connetToServer(String serverIp, int serverPort){
 		this.serverIp = serverIp;
@@ -80,16 +76,12 @@ public class Client {
 
 		System.out.println("Path to folder you want to share :");
 		//String pathSharedFolder = scanner.nextLine();
-
-
 		String pathSharedFolder = "C:\\Users\\Andreas\\Dropbox\\HES-SO Valais\\2_Semester\\Semester 4\\Programmation Distribuée\\Projet\\Darlene\\ProgDistri_Darlene_CyrilS\\src\\client_server";
 
-		
-		//String pathSharedFolder = "C:\\temp";
 		File f = new File(pathSharedFolder);
-		myPath = new ArrayList<File>(Arrays.asList(f.listFiles()));
-		subclientMe = new SubClient(myIp, myName, myPath);
-		System.out.println("Subclient created: " + subclientMe.getIP());
+		myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
+		subclientMe = new SubClient(myIp, myName, myPath); // Create this client
+		System.out.println("Created Client: " + subclientMe.getIP());
 	}
 	public void sendObjectToServer(){
 		try {
@@ -103,15 +95,10 @@ public class Client {
 		}		
 	}
 	
-	
 	@SuppressWarnings("unchecked")
 	public void getClientFileList(){
 		try {
-			
-			//objOutStr = new ObjectOutputStream(os);
-			//InputStream inputstream = mySocket.getInputStream();
 			objInpStr = new ObjectInputStream(mySocket.getInputStream());
-			// Read the object
 			subClientList = (List<SubClient>) objInpStr.readObject();
 			objOutStr.flush();
 			System.out.println("Object received.");
@@ -134,10 +121,10 @@ public class Client {
 		for (int i = 0; i < subclientlist.size(); i++) {
 			System.out.print("Name:" + subclientlist.get(i).getName());
 			System.out.print("IP:" + subclientlist.get(i).getIP());
-			for (int j = 0; j < subclientlist.get(i).getList().size(); j++) {
+			System.out.print(" Filelist: ");
+			/*for (int j = 0; j < subclientlist.get(i).getList().size(); j++) {
 				subclientlist.get(i).getList().get(j).toString();
-
-			}
+			}*/
 		}
 	}
 	
