@@ -70,8 +70,6 @@ public class Server implements Runnable {
 			//Warning : the backlog value (2nd parameter is handled by the implementation
 			//mySkServer = new ServerSocket(45000,10,localAddress);
 
-			//set 3min timeout
-			mySkServer.setSoTimeout(180000);
 
 			System.out.println("Usedd IpAddress :" + mySkServer.getInetAddress());
 			System.out.println("Listening to Port :" + mySkServer.getLocalPort());
@@ -178,7 +176,7 @@ public class Server implements Runnable {
 
 			try {
 
-				ipServer = InetAddress.getByName("192.168.108.10");
+				ipServer = InetAddress.getByName("10.90.129.217");
 				ServerSocket socketServer = new ServerSocket(45000, 10, ipServer);
 				
 				while(true)
