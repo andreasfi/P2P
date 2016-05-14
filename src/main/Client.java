@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Scanner;
 
 
-public class Client {
+public class Client implements Runnable {
 	private String serverIp;
 	private int serverPort;
 	List<SubClient> subClientList = new ArrayList<SubClient>();
@@ -76,7 +76,7 @@ public class Client {
 
 		System.out.println("Path to folder you want to share :");
 		//String pathSharedFolder = scanner.nextLine();
-		String pathSharedFolder = "C:\\Users\\Andreas\\Dropbox\\HES-SO Valais\\2_Semester\\Semester 4\\Programmation Distribuée\\Projet\\Darlene\\ProgDistri_Darlene_CyrilS\\src\\client_server";
+		String pathSharedFolder = "C:\\temp";
 
 		File f = new File(pathSharedFolder);
 		myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
@@ -129,11 +129,35 @@ public class Client {
 	}
 	
 	public static void main(String[] args) {
+		
+		Thread tserver = new Thread(new Client());
+		tserver.start();
+		
+		
+		/*
 		Client c = new Client();
 		c.connetToServer("192.168.108.10", 45000);
 		c.sendSubClient();
 		c.sendObjectToServer();
 		c.getClientFileList();
+		
+		*/
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	@Override
+	public void run() {
+		
+		System.out.println("asdf");
+		connetToServer("192.168.108.10", 45000);
+		sendSubClient();
+		sendObjectToServer();
+		getClientFileList();
+		
 	}
 
 }
