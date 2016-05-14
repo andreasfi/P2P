@@ -12,36 +12,39 @@ import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Collections;
-import java.util.logging.Logger;
-
-import com.sun.corba.se.impl.protocol.giopmsgheaders.Message;
-
-
 
 public class Server implements Runnable {
 
 	Socket srvSocket = null ;
 	InetAddress localAddress = null;
+	int port_server;
+	List<SubClient> SubClientList = new ArrayList<SubClient>();
+	
+	
 	ServerSocket mySkServer;
 	PrintWriter pout;
 	Scanner sc; 
 	int i =0;
 	String interfaceName = "eth1";
 	SubClient client_distant;
-	List<SubClient> SubClientList = new ArrayList<SubClient>();
+
 	String ipAddress;
 	ObjectInputStream inputStream;
 	ObjectOutputStream outputStream;
 	InputStreamReader isr;
 	String choice;
 
-	public void ServerClass()
+	public Server(InetAddress localAddress, int portServer, Socket socket, List<SubClient> clientList )
 	{
+		this.localAddress = localAddress;
+		this.port_server = portServer;
+		this.srvSocket = socket;
+		this.SubClientList = clientList;
 		
 	}
 	
@@ -51,7 +54,7 @@ public class Server implements Runnable {
 		
 		try {
 
-			NetworkInterface ni = NetworkInterface.getByName(interfaceName);
+			/*NetworkInterface ni = NetworkInterface.getByName(interfaceName);
 			Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
 			while(inetAddresses.hasMoreElements()) {
 				InetAddress ia = inetAddresses.nextElement();
@@ -62,10 +65,10 @@ public class Server implements Runnable {
 						localAddress = ia;
 					}
 				}   
-			}
+			}*/
 
 			//Warning : the backlog value (2nd parameter is handled by the implementation
-			mySkServer = new ServerSocket(45000,10,localAddress);
+			//mySkServer = new ServerSocket(45000,10,localAddress);
 
 			//set 3min timeout
 			mySkServer.setSoTimeout(180000);
@@ -83,8 +86,7 @@ public class Server implements Runnable {
 
 			inputStream = new ObjectInputStream(srvSocket.getInputStream());
 	        //outputStream = new ObjectOutputStream(srvSocket.getOutputStream());
-			SubClientList.add(new SubClient("129123", "asdfasfd", null));
-			SubClientList.add(new SubClient("1291232", "asdfasfd2", null));
+	        
 			in = (SubClient) inputStream.readObject();
 			SubClientList.add(new SubClient(in.getIP(), in.getName(), in.getList()));
 			
@@ -159,23 +161,38 @@ public class Server implements Runnable {
 		}
 
 	}
+	
+	@Override
+	public void run() 
+	{
+		connect();
+	}
 	 
-		public static void main(String[] args) {
+		public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		Server server = new Server();
-		
-		server.connect();
+
+			InetAddress ipServer;
+			
+			ArrayList<SubClient> listDonnees = new ArrayList<SubClient>();
+
+			try {
+
+				ipServer = InetAddress.getByName("192.168.108.10");
+				ServerSocket socketServer = new ServerSocket(45000, 10, ipServer);
+				
+				while(true)
+				{
+					Socket socket = socketServer.accept();
+					System.out.println("Connection request received");
+					Thread t = new Thread(new Server(ipServer, 45000, socket, listDonnees));
+					t.start();
+				}
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		
 	}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Runnable#run()
-		 */
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			
-		}
 
 }
