@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Scanner;
 
 
-public class Client implements Runnable {
+public class Client {
 	private String serverIp;
 	private int serverPort;
 	List<SubClient> subClientList = new ArrayList<SubClient>();
@@ -130,34 +130,15 @@ public class Client implements Runnable {
 	
 	public static void main(String[] args) {
 		
-		Thread tserver = new Thread(new Client());
-		tserver.start();
 		
 		
-		/*
+		
+		
 		Client c = new Client();
 		c.connetToServer("192.168.108.10", 45000);
 		c.sendSubClient();
 		c.sendObjectToServer();
 		c.getClientFileList();
-		
-		*/
-	}
-
-
-
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
-	public void run() {
-		
-		System.out.println("asdf");
-		connetToServer("192.168.108.10", 45000);
-		sendSubClient();
-		sendObjectToServer();
-		getClientFileList();
-		
 	}
 
 }
