@@ -36,71 +36,56 @@ public class Client {
 	SubClient subclientMe;
 	
 	Scanner scanner = new Scanner(System.in);
+	
+	
 	Socket mySocket;
-	ObjectOutputStream objOutStr;
-	ObjectInputStream objInpStr;
-	OutputStream os ;
+	ObjectOutputStream oos;
+	ObjectInputStream ois;
+	OutputStream os;
 	InetAddress LocalAddress;
+	
 	public Client(){
 		myIp = "192.168.1.101";
 		myName = "Client name";
+		File f = new File("C:\\temp");
+		myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
+		subclientMe = new SubClient(myIp, myName, myPath); // Create this client
 	}
 	
 	
 	
-	public void connetToServer(String serverIp, int serverPort){
+	public void connectToServer(String serverIp, int serverPort){
 		this.serverIp = serverIp;
 		this.serverPort = serverPort;
 		
 		try {
-			// Connect to server / Open socket
-			mySocket = new Socket(InetAddress.getByName(serverIp),45000);
-			try{
-				LocalAddress = InetAddress.getLocalHost();
-				System.out.println("The local address of the client is the following one : " +LocalAddress);
-				//System.out.println("My local address is the following one : " +LocalAddress);
-			}catch(UnknownHostException e){
-				e.printStackTrace();
-			}
+			LocalAddress = InetAddress.getLocalHost();
+			System.out.println("My local address is the following one : " +LocalAddress);
+			mySocket = new Socket(InetAddress.getByName(serverIp),serverPort); // Connect to server / Open socket
 			System.out.println("The client is connected to " + serverIp);
-			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-	}
-	
-	public void sendSubClient(){
-
-		System.out.println("Path to folder you want to share :");
-		//String pathSharedFolder = scanner.nextLine();
-		String pathSharedFolder = "C:\\temp";
-
-		File f = new File(pathSharedFolder);
-		myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
-		subclientMe = new SubClient(myIp, myName, myPath); // Create this client
-		System.out.println("Created Client: " + subclientMe.getIP());
 	}
 	public void sendObjectToServer(){
 		try {
 			os = mySocket.getOutputStream();
-			objOutStr = new ObjectOutputStream(os);
-			objOutStr.writeObject(subclientMe);
-			objOutStr.flush();
+			oos = new ObjectOutputStream(os);
+			oos.writeObject(subclientMe);
+			oos.flush();
 			System.out.println("SubClient object sent.");			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
 	}
-	
 	@SuppressWarnings("unchecked")
 	public void getClientFileList(){
 		try {
-			objInpStr = new ObjectInputStream(mySocket.getInputStream());
-			subClientList = (List<SubClient>) objInpStr.readObject();
-			objOutStr.flush();
+			ois = new ObjectInputStream(mySocket.getInputStream());
+			subClientList = (List<SubClient>) ois.readObject();
+			oos.flush();
 			System.out.println("Object received.");
 			printSubclientList(subClientList);
 		} catch (Exception e) {
@@ -109,9 +94,10 @@ public class Client {
 	}
 	public void closeConnection(){
 		try {
-			objOutStr.close();
-			objInpStr.close();
+			oos.close();
+			ois.close();
 			mySocket.close();
+			System.out.println("Connections now closed");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -125,20 +111,33 @@ public class Client {
 			/*for (int j = 0; j < subclientlist.get(i).getList().size(); j++) {
 				subclientlist.get(i).getList().get(j).toString();
 			}*/
+			System.out.println();
 		}
 	}
 	
 	public static void main(String[] args) {
-		
-		
-		
-		
+
 		
 		Client c = new Client();
-		c.connetToServer("192.168.108.10", 45000);
-		c.sendSubClient();
+		c.connectToServer("192.168.108.10", 45000);
 		c.sendObjectToServer();
 		c.getClientFileList();
+		c.closeConnection();
+		
+		
 	}
+}
 
+
+class ClientServer implements Runnable {
+
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
