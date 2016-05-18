@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 
 public class Server implements Runnable {
 	PrintWriter pout;
@@ -32,9 +35,12 @@ public class Server implements Runnable {
 	String choice;
 	Socket threadSocket;
 	
+	Logger log;
+	
 	public Server(Socket threadSocket, List<SubClient> subClientList){
 		this.threadSocket = threadSocket;
 		this.subClientList = subClientList;
+		this.log = Logger.getLogger("Log");
 	}
 	
 
@@ -44,9 +50,8 @@ public class Server implements Runnable {
 			pout = new PrintWriter(threadSocket.getOutputStream()); // send to client
 			
 			BufferedReader buffin = new BufferedReader (new InputStreamReader (threadSocket.getInputStream()));
-			
+			log.info("Server is listening");
 			String action ="";
-			
 			while(true){
 				action = buffin.readLine().trim();
 				
@@ -55,6 +60,7 @@ public class Server implements Runnable {
 					inputStream = new ObjectInputStream(threadSocket.getInputStream());
 					newSubClient = (SubClient) inputStream.readObject();
 					subClientList.add(new SubClient(newSubClient.getIP(), newSubClient.getName(), newSubClient.getList()));
+					log.info("Client received");
 					break;
 				case "sendFiles":
 					outputStream = new ObjectOutputStream(threadSocket.getOutputStream());
@@ -62,11 +68,12 @@ public class Server implements Runnable {
 					outputStream.writeObject(subClientList);
 					outputStream.flush();
 					outputStream.close();
-					System.out.println("List send");	
+					log.info("List send");
 					break;
 				case "quit":
 					threadSocket.close();
 					pout.close();
+					log.info("Server closed");
 					return;
 				}
 			}
@@ -74,9 +81,11 @@ public class Server implements Runnable {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.info("Connection error");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.info("Connection error");
 		}
 		
 		
@@ -95,11 +104,15 @@ public class Server implements Runnable {
 		Socket srvSocket = null ;
 		String ipAddress;
 		
+		Logger log = null;
+		
 		List<SubClient> subClientList = new ArrayList<SubClient>();
 		
 		try {
 			ni = NetworkInterface.getByName(interfaceName);
 			Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
+			log = new Log().getLog();
+			log.info("new Connection");
 			while(inetAddresses.hasMoreElements()) {
 				InetAddress ia = inetAddresses.nextElement();
 
@@ -117,6 +130,7 @@ public class Server implements Runnable {
 			
 			System.out.println("Usedd IpAddress :" + mySkServer.getInetAddress());
 			System.out.println("Listening to Port :" + mySkServer.getLocalPort());
+			
 
 			while(true){
 				Socket threadSocket = mySkServer.accept(); 	
@@ -129,8 +143,10 @@ public class Server implements Runnable {
 			
 		} catch (SocketException e) {
 			e.printStackTrace();
+			log.info("Error");
 		} catch (IOException e) {
 			e.printStackTrace();
+			log.info("Error");
 		}
 	}
 }
