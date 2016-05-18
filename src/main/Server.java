@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Server implements Runnable {
-	
 	PrintWriter pout;
 	SubClient newSubClient;
 	
@@ -67,7 +66,7 @@ public class Server implements Runnable {
 				case "quit":
 					threadSocket.close();
 					pout.close();
-					break;
+					return;
 				}
 			}
 				
@@ -118,7 +117,7 @@ public class Server implements Runnable {
 
 			while(true){
 				Socket threadSocket = mySkServer.accept(); 	
-				ipAddress = srvSocket.getRemoteSocketAddress().toString();
+				ipAddress = threadSocket.getRemoteSocketAddress().toString();
 				System.out.println(ipAddress + " is connected ");
 				Thread thread = new Thread(new Server(threadSocket));
 				thread.start();
@@ -131,5 +130,4 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 	}
-
 }
