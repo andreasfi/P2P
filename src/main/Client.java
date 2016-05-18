@@ -8,7 +8,9 @@ package main;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -137,8 +139,9 @@ public class Client {
 		
 		
 		Thread client = new Thread(startClient(subclient));
-		client.start();
+		
 		Thread server = new Thread(startServer(subclient));
+		client.start();
 		server.start();	
 		
 		
@@ -163,7 +166,13 @@ public class Client {
 			 */
 			switch (navigation) {
 			case 1:
-				
+				// ask for file to send
+				System.out.println("What file you want?");
+				// show file list
+				// scanner answer
+				//PrintWriter write = new PrintWriter(arg0)
+				//write.println("quit");
+				//write.flush();
 				break;
 
 			default:
@@ -183,7 +192,7 @@ public class Client {
 			{
 				Socket clientSocket = MySkServer.accept();
 				System.out.println("connection request received");
-				Thread t = new Thread(new ClientServer());
+				Thread t = new Thread(new ClientServer(clientSocket, subclient));
 				t.start();
 			}
 
@@ -198,6 +207,7 @@ public class Client {
 class ClientServer implements Runnable {
 
 	Socket srvSocket = null ;
+	Socket clientSocket;
 	ServerSocket mySkServer;
 	
 	InetAddress localAddress = null;
@@ -206,16 +216,51 @@ class ClientServer implements Runnable {
 	ObjectInputStream ois;
 	OutputStream os;
 	
+	SubClient subclient;
+	public ClientServer(Socket clientSocket, SubClient subclient){
+		this.clientSocket = clientSocket;
+		this.subclient = subclient;
+	}
 	public void acceptConnection(){
 		try {
-			mySkServer = new ServerSocket(4445);
+			/*mySkServer = new ServerSocket(4445);
 			mySkServer.setSoTimeout(180000);
 			
 			srvSocket = mySkServer.accept(); 	
 			String ipAddress = srvSocket.getRemoteSocketAddress().toString();
 			System.out.println(ipAddress + " is connected ");
+			*/
+			oos =  new ObjectOutputStream(clientSocket.getOutputStream());
 			
-			oos =  new ObjectOutputStream(srvSocket.getOutputStream());
+			BufferedReader buffin = new BufferedReader (new InputStreamReader (clientSocket.getInputStream()));
+			
+			String filepath = buffin.readLine().trim();
+			
+			
+			// Check if file exists
+			if(checkFileExistence(filepath)){
+				File fileSendToSend = new File(filepath);
+				
+				byte[] buf = new byte[8192];
+				InputStream is = new FileInputStream(fileSendToSend);
+				
+				int c = 0;
+				
+				while ((c = is.read(buf, 0, buf.length)) > 0) {
+		            oos.write(buf, 0, c);
+		            oos.flush();
+		        }
+				oos.close();
+			    System.out.println("stop");
+			    is.close();
+				
+			} else {
+				System.out.println("File does not exists");
+			}
+				
+			
+			
+			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -223,11 +268,12 @@ class ClientServer implements Runnable {
 		}
 		
 	}
-	public void getPath(){
-		// Get string
-	}
-	public void sendFile(){
-		
+	public boolean checkFileExistence(String file){
+		if(subclient.getList().contains(file)){
+			return true;
+		} else {
+			return false;	
+		}
 	}
 	@Override
 	public void run() {

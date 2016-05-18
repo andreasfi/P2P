@@ -24,7 +24,7 @@ public class Server implements Runnable {
 	
 	
 	SubClient client_distant;
-	List<SubClient> SubClientList = new ArrayList<SubClient>();
+	List<SubClient> subClientList = new ArrayList<SubClient>();
 	
 	ObjectInputStream inputStream;
 	ObjectOutputStream outputStream;
@@ -32,8 +32,9 @@ public class Server implements Runnable {
 	String choice;
 	Socket threadSocket;
 	
-	public Server(Socket threadSocket){
+	public Server(Socket threadSocket, List<SubClient> subClientList){
 		this.threadSocket = threadSocket;
+		this.subClientList = subClientList;
 	}
 	
 
@@ -53,12 +54,12 @@ public class Server implements Runnable {
 				case "receiveClient":
 					inputStream = new ObjectInputStream(threadSocket.getInputStream());
 					newSubClient = (SubClient) inputStream.readObject();
-					SubClientList.add(new SubClient(newSubClient.getIP(), newSubClient.getName(), newSubClient.getList()));
+					subClientList.add(new SubClient(newSubClient.getIP(), newSubClient.getName(), newSubClient.getList()));
 					break;
 				case "sendFiles":
 					outputStream = new ObjectOutputStream(threadSocket.getOutputStream());
-					System.out.println(SubClientList.get(0).getIP());
-					outputStream.writeObject(SubClientList);
+					System.out.println(subClientList.get(0).getIP());
+					outputStream.writeObject(subClientList);
 					outputStream.flush();
 					outputStream.close();
 					System.out.println("List send");	
@@ -94,6 +95,8 @@ public class Server implements Runnable {
 		Socket srvSocket = null ;
 		String ipAddress;
 		
+		List<SubClient> subClientList = new ArrayList<SubClient>();
+		
 		try {
 			ni = NetworkInterface.getByName(interfaceName);
 			Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
@@ -119,7 +122,7 @@ public class Server implements Runnable {
 				Socket threadSocket = mySkServer.accept(); 	
 				ipAddress = threadSocket.getRemoteSocketAddress().toString();
 				System.out.println(ipAddress + " is connected ");
-				Thread thread = new Thread(new Server(threadSocket));
+				Thread thread = new Thread(new Server(threadSocket, subClientList));
 				thread.start();
 			}	
 			
