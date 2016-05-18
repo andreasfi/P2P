@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -36,7 +37,8 @@ public class Client {
 	SubClient subclientMe;
 	
 	Scanner scanner = new Scanner(System.in);
-	
+	PrintWriter pout;
+	PrintWriter write;
 	
 	Socket mySocket;
 	ObjectOutputStream oos;
@@ -44,12 +46,8 @@ public class Client {
 	OutputStream os;
 	InetAddress LocalAddress;
 	
-	public Client(){
-		myIp = "192.168.1.101";
-		myName = "Client name";
-		File f = new File("C:\\temp");
-		myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
-		subclientMe = new SubClient(myIp, myName, myPath); // Create this client
+	public Client(SubClient subclient){
+		subclientMe = subclient;
 	}
 	
 	
@@ -63,6 +61,8 @@ public class Client {
 			System.out.println("My local address is the following one : " +LocalAddress);
 			mySocket = new Socket(InetAddress.getByName(serverIp),serverPort); // Connect to server / Open socket
 			System.out.println("The client is connected to " + serverIp);
+			
+			write = new PrintWriter(mySocket.getOutputStream());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -70,6 +70,8 @@ public class Client {
 		}
 	}
 	public void sendObjectToServer(){
+		write.println("receiveClient");
+		write.flush();
 		try {
 			os = mySocket.getOutputStream();
 			oos = new ObjectOutputStream(os);
@@ -82,6 +84,8 @@ public class Client {
 	}
 	@SuppressWarnings("unchecked")
 	public void getClientFileList(){
+		write.println("sendFiles");
+		write.flush();
 		try {
 			ois = new ObjectInputStream(mySocket.getInputStream());
 			subClientList = (List<SubClient>) ois.readObject();
@@ -93,7 +97,10 @@ public class Client {
 		}
 	}
 	public void closeConnection(){
+		write.println("quit");
+		write.flush();
 		try {
+			
 			oos.close();
 			ois.close();
 			mySocket.close();
@@ -108,36 +115,123 @@ public class Client {
 			System.out.print("Name:" + subclientlist.get(i).getName());
 			System.out.print("IP:" + subclientlist.get(i).getIP());
 			System.out.print(" Filelist: ");
-			/*for (int j = 0; j < subclientlist.get(i).getList().size(); j++) {
-				subclientlist.get(i).getList().get(j).toString();
-			}*/
+			if(subclientlist.get(i).getList()!= null){
+				for (int j = 0; j < subclientlist.get(i).getList().size(); j++) {
+					System.out.println(subclientlist.get(i).getList().get(j).toString());
+				}
+			} else {
+				System.out.println("List empty");
+			}
 			System.out.println();
 		}
 	}
 	
 	public static void main(String[] args) {
-
+		// Create the client
+		String myIp = "192.168.1.101";
+		String myName = "AndyOrdi";
+		File f = new File("C:\\temp");
+		List<File> myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
+		SubClient subclient = new SubClient(myIp, myName, myPath); // Create this client
 		
-		Client c = new Client();
+		
+		
+		Thread client = new Thread(startClient(subclient));
+		client.start();
+		Thread server = new Thread(startServer(subclient));
+		server.start();	
+		
+		
+	}
+	private static Runnable startClient(SubClient subclient){
+		Client c = new Client(subclient);
 		c.connectToServer("192.168.108.10", 45000);
 		c.sendObjectToServer();
 		c.getClientFileList();
 		c.closeConnection();
 		
+		int navigation = 1;
+		Scanner scanner = new Scanner(System.in);
+		while(navigation != 9){
+			System.out.println("Navigate.");
+			navigation = scanner.nextInt();
+			
+			/*
+			 * Show all files
+			 * Ask for file
+			 * 
+			 */
+			switch (navigation) {
+			case 1:
+				
+				break;
+
+			default:
+				break;
+			}
+		}
 		
+		return null;
+	}
+	private static Runnable startServer(SubClient subclient){
+		InetAddress localAddress;
+		System.out.println("Starting server listen");
+		try {
+			localAddress = InetAddress.getLocalHost();
+			ServerSocket MySkServer = new ServerSocket(45002,10,localAddress);
+			while(true)
+			{
+				Socket clientSocket = MySkServer.accept();
+				System.out.println("connection request received");
+				Thread t = new Thread(new ClientServer());
+				t.start();
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null ;
+		}
 	}
 }
 
 
 class ClientServer implements Runnable {
 
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
+	Socket srvSocket = null ;
+	ServerSocket mySkServer;
+	
+	InetAddress localAddress = null;
+	
+	ObjectOutputStream oos;
+	ObjectInputStream ois;
+	OutputStream os;
+	
+	public void acceptConnection(){
+		try {
+			mySkServer = new ServerSocket(4445);
+			mySkServer.setSoTimeout(180000);
+			
+			srvSocket = mySkServer.accept(); 	
+			String ipAddress = srvSocket.getRemoteSocketAddress().toString();
+			System.out.println(ipAddress + " is connected ");
+			
+			oos =  new ObjectOutputStream(srvSocket.getOutputStream());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	public void getPath(){
+		// Get string
+	}
+	public void sendFile(){
+		
+	}
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		
+		acceptConnection();
 	}
 	
 }

@@ -19,42 +19,84 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Server implements Runnable {
-
-	Socket srvSocket = null ;
-	InetAddress localAddress = null;
-	int port_server;
+	
+	PrintWriter pout;
+	SubClient newSubClient;
+	
+	
+	SubClient client_distant;
 	List<SubClient> SubClientList = new ArrayList<SubClient>();
 	
-	
-	ServerSocket mySkServer;
-	PrintWriter pout;
-	Scanner sc; 
-	int i =0;
-	String interfaceName = "eth1";
-	SubClient client_distant;
-
-	String ipAddress;
 	ObjectInputStream inputStream;
 	ObjectOutputStream outputStream;
 	InputStreamReader isr;
 	String choice;
+	Socket threadSocket;
+	
+	public Server(Socket threadSocket){
+		this.threadSocket = threadSocket;
+	}
+	
 
-	public Server(InetAddress localAddress, int portServer, Socket socket, List<SubClient> clientList )
-	{
-		this.localAddress = localAddress;
-		this.port_server = portServer;
-		this.srvSocket = socket;
-		this.SubClientList = clientList;
+
+	public void listen(){
+		try {
+			pout = new PrintWriter(threadSocket.getOutputStream()); // send to client
+			
+			BufferedReader buffin = new BufferedReader (new InputStreamReader (threadSocket.getInputStream()));
+			
+			String action ="";
+			
+			while(true){
+				action = buffin.readLine().trim();
+				
+				switch(action){
+				case "receiveClient":
+					inputStream = new ObjectInputStream(threadSocket.getInputStream());
+					newSubClient = (SubClient) inputStream.readObject();
+					SubClientList.add(new SubClient(newSubClient.getIP(), newSubClient.getName(), newSubClient.getList()));
+					break;
+				case "sendFiles":
+					outputStream = new ObjectOutputStream(threadSocket.getOutputStream());
+					System.out.println(SubClientList.get(0).getIP());
+					outputStream.writeObject(SubClientList);
+					outputStream.flush();
+					outputStream.close();
+					System.out.println("List send");	
+					break;
+				case "quit":
+					threadSocket.close();
+					pout.close();
+					break;
+				}
+			}
+				
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
 	
-	public void connect()
-	{
-		SubClient in = null;
+	@Override
+	public void run() {
+		listen();
+	}
+
+	public static void main(String[] args) {
+		String interfaceName = "eth1";
+		InetAddress localAddress = null;
+		NetworkInterface ni;
+		ServerSocket mySkServer;
+		Socket srvSocket = null ;
+		String ipAddress;
 		
 		try {
-
-			/*NetworkInterface ni = NetworkInterface.getByName(interfaceName);
+			ni = NetworkInterface.getByName(interfaceName);
 			Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
 			while(inetAddresses.hasMoreElements()) {
 				InetAddress ia = inetAddresses.nextElement();
@@ -65,132 +107,29 @@ public class Server implements Runnable {
 						localAddress = ia;
 					}
 				}   
-			}*/
-
-			//Warning : the backlog value (2nd parameter is handled by the implementation
-			//mySkServer = new ServerSocket(45000,10,localAddress);
-
-
+			}
+			
+			mySkServer = new ServerSocket(45000,10,localAddress);
+			
+			mySkServer.setSoTimeout(180000);
+			
 			System.out.println("Usedd IpAddress :" + mySkServer.getInetAddress());
 			System.out.println("Listening to Port :" + mySkServer.getLocalPort());
 
-			//wait for client connection		
-			srvSocket = mySkServer.accept(); 	
-			ipAddress = srvSocket.getRemoteSocketAddress().toString();
-			System.out.println(ipAddress + " is connected "+ i++);
-
-			//open the output data stream to write on the client
-			pout = new PrintWriter(srvSocket.getOutputStream()); 		  
-
-			inputStream = new ObjectInputStream(srvSocket.getInputStream());
-	        //outputStream = new ObjectOutputStream(srvSocket.getOutputStream());
-	        
-			in = (SubClient) inputStream.readObject();
-			SubClientList.add(new SubClient(in.getIP(), in.getName(), in.getList()));
+			while(true){
+				Socket threadSocket = mySkServer.accept(); 	
+				ipAddress = srvSocket.getRemoteSocketAddress().toString();
+				System.out.println(ipAddress + " is connected ");
+				Thread thread = new Thread(new Server(threadSocket));
+				thread.start();
+			}	
 			
-			System.out.println(in.getIP());
 			
-			sendClientList();
-			//getClientChoice();
-			//giveClientIP();
-					
-			//Then die
-			System.out.println("Now dying");
-			srvSocket.close();
-			mySkServer.close();
-			pout.close();
-
-
-		}catch (SocketException e) {
-
-			System.out.println("Connection Timed out");
-		}
-		catch (IOException e) {
+		} catch (SocketException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void sendClientList()
-	{
-		try {
-			outputStream = new ObjectOutputStream(srvSocket.getOutputStream());
-			System.out.println(SubClientList.get(0).getIP());
-			outputStream.writeObject(SubClientList);
-			outputStream.flush();
-			outputStream.close();
-			System.out.println("List send");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-	}
-	
-	public void giveClientIP()
-	{
-		SubClient clientChoosed = (SubClient) SubClientList.get(1);
-		clientChoosed.getIP();
-		
-		try {
-			
-			pout = new PrintWriter(srvSocket.getOutputStream());
-			pout.println(clientChoosed.getIP());
-			System.out.println("The ip send to connect to the client is " + clientChoosed.getIP());
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void getClientChoice()
-	{
-		
-		try {
-			BufferedReader buffin = new BufferedReader (new InputStreamReader (srvSocket.getInputStream()));
-			choice = buffin.readLine();
-			System.out.println("Your choice is" + choice);
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-	
-	@Override
-	public void run() 
-	{
-		connect();
-	}
-	 
-		public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-
-
-			InetAddress ipServer;
-			
-			ArrayList<SubClient> listDonnees = new ArrayList<SubClient>();
-
-			try {
-
-				ipServer = InetAddress.getByName("10.90.129.217");
-				ServerSocket socketServer = new ServerSocket(45000, 10, ipServer);
-				
-				while(true)
-				{
-					Socket socket = socketServer.accept();
-					System.out.println("Connection request received");
-					Thread t = new Thread(new Server(ipServer, 45000, socket, listDonnees));
-					t.start();
-				}
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
 	}
 
 }
