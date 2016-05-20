@@ -178,7 +178,7 @@ public class Client {
 				System.out.println("What file you want?");
 				// show file list
 				// scanner answer
-				c.connectToClient("192.168.1.101", 45002, "test");
+				c.connectToClient("192.168.1.102", 45002, "test");
 				//PrintWriter write = new PrintWriter(arg0)
 				//write.println("quit");
 				//write.flush();
