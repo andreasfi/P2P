@@ -130,7 +130,7 @@ public class Client {
 	
 	public static void main(String[] args) {
 		// Create the client
-		String myIp = "192.168.1.101";
+		String myIp = "192.168.108.102";
 		String myName = "AndyOrdi";
 		File f = new File("/tmp");
 		List<File> myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
@@ -142,29 +142,24 @@ public class Client {
 		
 		
 		client.start();
-		
+		Thread server = new Thread(startServer(subclient));
+		server.start();	
 		
 		
 	}
 	private static Runnable startClient(SubClient subclient){
 		Client c = new Client(subclient);
 		Scanner sc = new Scanner(System.in);
-		System.out.println("Do you want to listen?");
-		String reponse = sc.nextLine();
-		if(reponse == "Y")
-		{
-			Thread server = new Thread(startServer(subclient));
-			server.start();	
-		}
-		else {
 
-		System.out.println("Select an IP");
-		String ip = sc.nextLine();
+		
+		
+		String ip = "192.168.108.10";
+		System.out.println("connecting to "+ip);
 		c.connectToServer(ip, 45000);
 		c.sendObjectToServer();
 		c.getClientFileList();
 		c.closeConnection();
-		}
+		
 		
 		int navigation = 1;
 		Scanner scanner = new Scanner(System.in);
