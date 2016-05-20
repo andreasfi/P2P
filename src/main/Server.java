@@ -22,39 +22,47 @@ import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 public class Server implements Runnable {
-	PrintWriter pout;
-	SubClient newSubClient;
-	
-	
-	SubClient client_distant;
-	List<SubClient> subClientList = new ArrayList<SubClient>();
-	
-	ObjectInputStream inputStream;
-	ObjectOutputStream outputStream;
-	InputStreamReader isr;
-	String choice;
-	Socket threadSocket;
-	
+
+	private PrintWriter pout;
+	private SubClient newSubClient;
+
+	//The SubClient is the client who's connecting to the server, it contains client informations like ip, name...
+	private SubClient client_distant;
+
+	//This is a SubClientList which is sent to the client to choose the client to connect to
+	private List<SubClient> subClientList = new ArrayList<SubClient>();
+
+	private ObjectInputStream inputStream;
+	private ObjectOutputStream outputStream;
+	private InputStreamReader isr;
+	private String choice;
+	private Socket threadSocket;
+
 	Logger log;
 	
+	/*
+	 * this is the constructor who needs to get the Socket, and the subclient list to send it to
+	 * the client
+	 */
 	public Server(Socket threadSocket, List<SubClient> subClientList){
 		this.threadSocket = threadSocket;
 		this.subClientList = subClientList;
 		this.log = Logger.getLogger("Log");
 	}
-	
 
-
+	/*
+	 * This is the method that's listening for any connection onto the server
+	 */
 	public void listen(){
 		try {
 			pout = new PrintWriter(threadSocket.getOutputStream()); // send to client
-			
+
 			BufferedReader buffin = new BufferedReader (new InputStreamReader (threadSocket.getInputStream()));
 			log.info("Server is listening");
 			String action ="";
 			while(true){
 				action = buffin.readLine().trim();
-				
+
 				switch(action){
 				case "receiveClient":
 					inputStream = new ObjectInputStream(threadSocket.getInputStream());
@@ -77,7 +85,7 @@ public class Server implements Runnable {
 					return;
 				}
 			}
-				
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -87,27 +95,31 @@ public class Server implements Runnable {
 			e.printStackTrace();
 			log.info("Connection error");
 		}
-		
-		
 	}
-	
+	/*
+	 * Here we're running our server threads to make them listening to any client connections
+	 */
 	@Override
 	public void run() {
 		listen();
 	}
 
 	public static void main(String[] args) {
+
 		String interfaceName = "eth1";
 		InetAddress localAddress = null;
 		NetworkInterface ni;
 		ServerSocket mySkServer;
 		Socket srvSocket = null ;
 		String ipAddress;
-		
+
 		Logger log = null;
-		
+
 		List<SubClient> subClientList = new ArrayList<SubClient>();
-		
+
+		/*
+		 * This is where we're getting the ip of the server
+		 */
 		try {
 			ni = NetworkInterface.getByName(interfaceName);
 			Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
@@ -123,15 +135,20 @@ public class Server implements Runnable {
 					}
 				}   
 			}
-			
+
+			/*
+			 * This is the serverSocker who needs the port, the backlog and the ipaddress
+			 */
 			mySkServer = new ServerSocket(45000,10,localAddress);
-			
-			mySkServer.setSoTimeout(180000);
-			
+
+			//mySkServer.setSoTimeout(180000);
+
 			System.out.println("Usedd IpAddress :" + mySkServer.getInetAddress());
 			System.out.println("Listening to Port :" + mySkServer.getLocalPort());
-			
 
+			/*
+			 * Here we're accepting connection
+			 */
 			while(true){
 				Socket threadSocket = mySkServer.accept(); 	
 				ipAddress = threadSocket.getRemoteSocketAddress().toString();
@@ -139,8 +156,7 @@ public class Server implements Runnable {
 				Thread thread = new Thread(new Server(threadSocket, subClientList));
 				thread.start();
 			}	
-			
-			
+
 		} catch (SocketException e) {
 			e.printStackTrace();
 			log.info("Error");

@@ -54,8 +54,9 @@ public class Client {
 		subclientMe = subclient;
 	}
 	
-	
-	
+	/*
+	 * Method that is connecting the client to the server	
+	 */
 	public void connectToServer(String serverIp, int serverPort){
 		this.serverIp = serverIp;
 		this.serverPort = serverPort;
@@ -73,6 +74,11 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	 * Method that is sending the subclient object to the server
+	 * Subclient contains all client informations
+	 */
 	public void sendObjectToServer(){
 		write.println("receiveClient");
 		write.flush();
@@ -86,6 +92,7 @@ public class Client {
 			e.printStackTrace();
 		}		
 	}
+	
 	@SuppressWarnings("unchecked")
 	public void getClientFileList(){
 		write.println("sendFiles");
@@ -100,6 +107,10 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	 * Method that is closing the connection with the server
+	 */
 	public void closeConnection(){
 		write.println("quit");
 		write.flush();
@@ -114,6 +125,10 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	 * This is the method that is printing the subclient list, received from the server
+	 */
 	public void printSubclientList(List<SubClient> subclientlist){
 		for (int i = 0; i < subclientlist.size(); i++) {
 			System.out.print("Name:" + subclientlist.get(i).getName());
