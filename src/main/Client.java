@@ -214,7 +214,7 @@ public class Client {
 	public void connectToClient(String ip, int port, String filepath){
 		
 		try {
-			mySocket = new Socket(InetAddress.getByName(serverIp),serverPort); // Connect to server / Open socket
+			mySocket = new Socket(InetAddress.getByName(ip),port); // Connect to server / Open socket
 			System.out.println("The client is connected to " + ip);
 			
 			write = new PrintWriter(mySocket.getOutputStream());
