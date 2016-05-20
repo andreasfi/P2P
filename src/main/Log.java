@@ -29,7 +29,7 @@ public class Log {
 		
 		try
 		{
-			fh = new FileHandler("C:/Users/Samuel/Documents/GitHub/P2P/src/main/MyLogFile.log");
+			fh = new FileHandler("/home/osboxes/Desktop/MyLogFile.log");
 			log.addHandler(fh);
 			SimpleFormatter formatter = new SimpleFormatter();
 			fh.setFormatter(formatter);
