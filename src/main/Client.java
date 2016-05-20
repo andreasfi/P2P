@@ -6,9 +6,12 @@ package main;
  * Client.java
  */
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -248,24 +251,45 @@ public class Client {
 	
 	public void connectToClient(String ip, int port, String filepath){
 		
-		try {
-			mySocket = new Socket(InetAddress.getByName(ip),port); // Connect to server / Open socket
-			System.out.println("The client is connected to " + ip);
-			
-			write = new PrintWriter(mySocket.getOutputStream());
-			
-			// Ask for file
-			PrintWriter write = new PrintWriter(mySocket.getOutputStream());
-			write.println(filepath);
-			write.flush();
-			
-			
-			
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		int bytesRead;
+	    int current = 0;
+	    FileOutputStream fos = null;
+	    BufferedOutputStream bos = null;
+	    Socket clientsock = null;
+	    
+	    String downloadPath = "C:/temp/test.java";
+	    int FILE_SIZE = 6022386;
+	    
+	    try{
+	    	clientsock = new Socket(ip, port);
+	    	System.out.println("Connecting...");
+	    	
+	    	byte [] mybytearray  = new byte [FILE_SIZE];
+		      InputStream is = clientsock.getInputStream();
+		      fos = new FileOutputStream(downloadPath);
+		      bos = new BufferedOutputStream(fos);
+		      bytesRead = is.read(mybytearray,0,mybytearray.length);
+		      current = bytesRead;
+		      
+		      do {
+			         bytesRead =
+			            is.read(mybytearray, current, (mybytearray.length-current));
+			         if(bytesRead >= 0) current += bytesRead;
+			      } while(bytesRead > -1);
+		      
+		      bos.write(mybytearray, 0 , current);
+		      bos.flush();
+		      System.out.println("File " + downloadPath
+		          + " downloaded (" + current + " bytes read)");
+	    	
+		      
+		      if (fos != null) fos.close();
+		      if (bos != null) bos.close();
+		      if (clientsock != null) clientsock.close();
+	    }catch(Exception e){
+	    	
+	    }
+	    
 	}
 	
 	
@@ -304,29 +328,29 @@ class ClientServer implements Runnable {
 			BufferedReader buffin = new BufferedReader (new InputStreamReader (clientSocket.getInputStream()));
 			
 			String filepath = buffin.readLine().trim();
-			
-			
+			FileInputStream fis = null;
+			BufferedInputStream bis = null;
+		    OutputStream os = null;
 			// Check if file exists
 			if(checkFileExistence(filepath)){
-				File fileSendToSend = new File(filepath);
+				File myFile = new File (filepath);
+				byte [] mybytearray  = new byte [(int)myFile.length()];
 				
-				byte[] buf = new byte[8192];
-				InputStream is = new FileInputStream(fileSendToSend);
-				
-				int c = 0;
-				
-				while ((c = is.read(buf, 0, buf.length)) > 0) {
-		            oos.write(buf, 0, c);
-		            oos.flush();
-		        }
-				oos.close();
-			    System.out.println("stop");
-			    is.close();
+				fis = new FileInputStream(myFile);
+				bis = new BufferedInputStream(fis);
+		        bis.read(mybytearray,0,mybytearray.length);
+		        os = clientSocket.getOutputStream();
+		        System.out.println("Sending " + filepath + "(" + mybytearray.length + " bytes)");
+		        os.write(mybytearray,0,mybytearray.length);
+		        os.flush();
+		        System.out.println("Done.");
 				
 			} else {
 				System.out.println("File does not exists: " + filepath);
 			}
-				
+			if (bis != null) bis.close();
+	        if (os != null) os.close();
+	        if (clientSocket!=null) clientSocket.close();
 			
 			
 			
