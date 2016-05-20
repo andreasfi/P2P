@@ -18,11 +18,13 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
 
@@ -192,10 +194,28 @@ public class Client {
 		return null;
 	}
 	private static Runnable startServer(SubClient subclient){
-		InetAddress localAddress;
+		InetAddress localAddress = null;
 		System.out.println("Starting server listen");
+		NetworkInterface ni;
+		String interfaceName = "eth1";
 		try {
-			localAddress = InetAddress.getLocalHost();
+			
+			ni = NetworkInterface.getByName(interfaceName);
+			Enumeration<InetAddress> inetAddresses =  ni.getInetAddresses();
+			//log = new Log().getLog();
+			//log.info("new Connection");
+			while(inetAddresses.hasMoreElements()) {
+				InetAddress ia = inetAddresses.nextElement();
+
+				if(!ia.isLinkLocalAddress()) {
+					if(!ia.isLoopbackAddress()) {
+						System.out.println(ni.getName() + "->IP: " + ia.getHostAddress());
+						localAddress = ia;
+					}
+				}   
+			}
+			
+			System.out.println(localAddress);
 			ServerSocket MySkServer = new ServerSocket(45002,10,localAddress);
 			while(true)
 			{
