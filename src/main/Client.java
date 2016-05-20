@@ -370,7 +370,7 @@ class ClientServer implements Runnable {
 		if(subclient.getList().contains(file)){
 			return true;
 		} else {
-			return false;	
+			return true;	
 		}
 	}
 	@Override
