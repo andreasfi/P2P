@@ -95,7 +95,6 @@ public class Client {
 			e.printStackTrace();
 		}		
 	}
-	
 	@SuppressWarnings("unchecked")
 	public void getClientFileList(){
 		write.println("sendFiles");
@@ -110,7 +109,6 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
-	
 	/*
 	 * Method that is closing the connection with the server
 	 */
@@ -128,7 +126,6 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
-	
 	/*
 	 * This is the method that is printing the subclient list, received from the server
 	 */
@@ -137,9 +134,10 @@ public class Client {
 			System.out.print("Name:" + subclientlist.get(i).getName());
 			System.out.print("IP:" + subclientlist.get(i).getIP());
 			System.out.print(" Filelist: ");
+			System.out.println();
 			if(subclientlist.get(i).getList()!= null){
 				for (int j = 0; j < subclientlist.get(i).getList().size(); j++) {
-					System.out.println(subclientlist.get(i).getList().get(j).toString());
+					System.out.println("ID: "+j+", File: "+subclientlist.get(i).getList().toString());
 				}
 			} else {
 				System.out.println("List empty");
@@ -147,14 +145,23 @@ public class Client {
 			System.out.println();
 		}
 	}
+	public void printFileList(){
+		int id = 1;
+		for (int i = 0; i < subClientList.size(); i++) {
+			for (int j = 0; j < subClientList.get(i).getList().size(); j++) {
+				//System.out.println("ID: "+id+", File: "+subClientList.get(i).getList().get(j));
+			}
+		}
+	}
 	
 	public static void main(String[] args) {
 		// Create the client
 		String myIp = "192.168.108.102";
 		String myName = "AndyOrdi";
+		String filepath = "C:/temp";
 		File f = new File("/tmp");
 		List<File> myPath = new ArrayList<File>(Arrays.asList(f.listFiles())); // Get all files upon this path
-		SubClient subclient = new SubClient(myIp, myName, myPath); // Create this client
+		SubClient subclient = new SubClient(myIp, myName, filepath, myPath); // Create this client
 		
 		
 		
@@ -182,23 +189,21 @@ public class Client {
 		
 		
 		int navigation = 1;
+		int fileiwant = 0;
 		Scanner scanner = new Scanner(System.in);
+		
 		while(navigation != 9){
 			System.out.println("Navigate.");
 			navigation = scanner.nextInt();
-			
-			/*
-			 * Show all files
-			 * Ask for file
-			 * 
-			 */
+
 			switch (navigation) {
 			case 1:
 				// ask for file to send
 				System.out.println("What file you want?");
-				// show file list
+				c.printFileList(); // show file list
+				fileiwant = scanner.nextInt();
 				// scanner answer
-				c.connectToClient("192.168.108.102", 45002, "test");
+				c.connectToClient("192.168.108.102", 45002, fileiwant+"");
 				//PrintWriter write = new PrintWriter(arg0)
 				//write.println("quit");
 				//write.flush();

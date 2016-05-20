@@ -3,36 +3,43 @@ package main;
 import java.io.Serializable;
 import java.util.List;
 
+import com.sun.org.apache.regexp.internal.recompile;
+
 public class SubClient implements Serializable {
 
-	private String IP;
-	private String Name;
+	private String ip;
+	private String name;
+	private String filepath;
 	private List<String> list;
 	
-	
-	public SubClient(String iP, String name, List list) {
-		IP = iP;
-		Name = name;
+	public SubClient(String ip, String name, String filepath, List list) {
+		this.ip = ip;
+		this.name = name;
+		this.filepath = filepath;
 		this.list = list;
 	}
-	
 	public String getIP() {
-		return IP;
+		return ip;
 	}
-	public void setIP(String iP) {
-		IP = iP;
+	public void setIP(String ip) {
+		this.ip = ip;
 	}
 	public String getName() {
-		return Name;
+		return name;
 	}
 	public void setName(String name) {
-		Name = name;
+		this.name = name;
 	}
-	public List getList() {
+	public List<String> getList() {
 		return list;
 	}
-	public void setList(List list) {
+	public void setList(List<String> list) {
 		this.list = list;
 	}
-	
+	public String getFilepath() {
+		return this.filepath;
+	}
+	public void setFilepath(String filepath) {
+		this.filepath = filepath;
+	}
 }

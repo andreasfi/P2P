@@ -67,7 +67,7 @@ public class Server implements Runnable {
 				case "receiveClient":
 					inputStream = new ObjectInputStream(threadSocket.getInputStream());
 					newSubClient = (SubClient) inputStream.readObject();
-					subClientList.add(new SubClient(newSubClient.getIP(), newSubClient.getName(), newSubClient.getList()));
+					subClientList.add(new SubClient(newSubClient.getIP(), newSubClient.getName(), newSubClient.getFilepath(), newSubClient.getList()));
 					log.info("Client received");
 					break;
 				case "sendFiles":
