@@ -257,7 +257,7 @@ public class Client {
 	    BufferedOutputStream bos = null;
 	    Socket clientsock = null;
 	    
-	    String downloadPath = "C:/temp/test.java";
+	    String downloadPath = "/home/osboxes/Desktop/Test.txt";
 	    int FILE_SIZE = 6022386;
 	    
 	    try{
