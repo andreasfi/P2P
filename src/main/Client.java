@@ -264,6 +264,11 @@ public class Client {
 	    	clientsock = new Socket(ip, port);
 	    	System.out.println("Connecting...");
 	    	
+	    	PrintWriter write = new PrintWriter(clientsock.getOutputStream());
+			write.println(downloadPath);
+			write.flush();
+	    	
+	    	
 	    	byte [] mybytearray  = new byte [FILE_SIZE];
 		      InputStream is = clientsock.getInputStream();
 		      fos = new FileOutputStream(downloadPath);
