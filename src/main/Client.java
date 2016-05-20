@@ -183,6 +183,7 @@ public class Client {
 				System.out.println("What file you want?");
 				// show file list
 				// scanner answer
+				c.connectToClient("192.168.1.101", 45002, "test");
 				//PrintWriter write = new PrintWriter(arg0)
 				//write.println("quit");
 				//write.flush();
@@ -214,7 +215,32 @@ public class Client {
 			return null ;
 		}
 	}
+	
+	public void connectToClient(String ip, int port, String filepath){
+		
+		try {
+			mySocket = new Socket(InetAddress.getByName(serverIp),serverPort); // Connect to server / Open socket
+			System.out.println("The client is connected to " + ip);
+			
+			write = new PrintWriter(mySocket.getOutputStream());
+			
+			// Ask for file
+			PrintWriter write = new PrintWriter(mySocket.getOutputStream());
+			write.println(filepath);
+			write.flush();
+			
+			
+			
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 }
+
 
 
 class ClientServer implements Runnable {
@@ -268,7 +294,7 @@ class ClientServer implements Runnable {
 			    is.close();
 				
 			} else {
-				System.out.println("File does not exists");
+				System.out.println("File does not exists: " + filepath);
 			}
 				
 			
