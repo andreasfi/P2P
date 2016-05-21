@@ -21,6 +21,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import peertopeer.Log;
+
 public class Server implements Runnable {
 
 	private PrintWriter pout;
