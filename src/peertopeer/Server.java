@@ -58,7 +58,7 @@ public class Server implements Runnable {
 			pout = new PrintWriter(threadSocket.getOutputStream()); // send to client
 
 			BufferedReader buffin = new BufferedReader (new InputStreamReader (threadSocket.getInputStream()));
-			log.info("Server is listening");
+			//log.info("Server is listening");
 			String action ="";
 			boolean alreadyClient = false;
 			while(true){
@@ -105,11 +105,11 @@ public class Server implements Runnable {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			log.severe("Connection error");
+			log.info("Connection error");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			log.severe("Connection error");
+			log.info("Connection error");
 		}
 	}
 	/*
@@ -176,10 +176,10 @@ public class Server implements Runnable {
 
 		} catch (SocketException e) {
 			e.printStackTrace();
-			log.severe("Error");
+			log.info("Error");
 		} catch (IOException e) {
 			e.printStackTrace();
-			log.severe("Error");
+			log.info("Error");
 		}
 	}
 }
