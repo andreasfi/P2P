@@ -91,7 +91,6 @@ public class Client {
 	}
 	public List<String> getFileNames(String filepath){
 		File folder = new File(filepath);
-		System.out.println("adsf");
 		File[] listOfFiles = folder.listFiles();
 		List<String> filenames = new ArrayList<String>();
 		    for (int i = 0; i < listOfFiles.length; i++) {
