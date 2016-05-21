@@ -53,6 +53,7 @@ public class ClientGUI extends JFrame implements ActionListener{
 	
 	public ClientGUI(){
 		super("Client");
+		myServerListen = null;
 		setLayout(new BorderLayout());		
 		
 		JPanel panel_north = new JPanel();
@@ -181,7 +182,10 @@ public class ClientGUI extends JFrame implements ActionListener{
         	public void run() {
         		System.out.println("Starting server listen");
         		try {
-        			myServerListen = new ServerSocket(45001,10,getLocalInetAdress());
+        			
+        			if(myServerListen== null){
+        				myServerListen = new ServerSocket(45001,10,getLocalInetAdress());
+        			}
         			while(true)
         			{
         				Socket clientSocket = myServerListen.accept();
