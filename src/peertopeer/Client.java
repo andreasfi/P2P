@@ -77,6 +77,9 @@ public class Client {
 			printSubclientList(subClientList);
 			
 			
+			write.println("quit");
+			write.flush();
+			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -88,6 +91,7 @@ public class Client {
 	}
 	public List<String> getFileNames(String filepath){
 		File folder = new File(filepath);
+		System.out.println("adsf");
 		File[] listOfFiles = folder.listFiles();
 		List<String> filenames = new ArrayList<String>();
 		    for (int i = 0; i < listOfFiles.length; i++) {
@@ -163,12 +167,9 @@ public class Client {
 		      bytesRead = is.read(mybytearray,0,mybytearray.length);
 		      current = bytesRead;
 		      System.out.println("Writing to path: "+filepath);
-		      int counts = 0;
 		      do {
 			         bytesRead = is.read(mybytearray, current, (mybytearray.length-current));
 			         if(bytesRead >= 0) current += bytesRead;
-			         System.out.println(counts);
-			         counts++;
 			  } while(bytesRead > -1);
 		      
 		      bos.write(mybytearray, 0 , current);
@@ -233,7 +234,8 @@ public class Client {
 	public DefaultListModel getServerFilenamesAsModel(){
 		DefaultListModel listModel = new DefaultListModel<>();
 		for (int i = 0; i < subClientList.size(); i++) {
-			if(subClientList.get(i).getIP() != ""){
+			if(!subClientList.get(i).getIP().equals(this.getLocalIp())){
+				System.out.println(subClientList.get(i).getIP());
 				for (int j = 0; j < subClientList.get(i).getList().size(); j++) {
 					listModel.addElement(subClientList.get(i).getList().get(j));
 				}

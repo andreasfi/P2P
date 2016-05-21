@@ -45,7 +45,7 @@ public class ClientGUI extends JFrame implements ActionListener{
 	JTextField textfield_serverip;
 	JTextField textfield_serverport;
 	JTextField textfield_filepath;
-	
+	ServerSocket myServerListen;
 	Client client;
 	
 	JList jlist_files;
@@ -181,15 +181,15 @@ public class ClientGUI extends JFrame implements ActionListener{
         	public void run() {
         		System.out.println("Starting server listen");
         		try {
-        			ServerSocket MySkServer = new ServerSocket(45001,10,getLocalInetAdress());
+        			myServerListen = new ServerSocket(45001,10,getLocalInetAdress());
         			while(true)
         			{
-        				Socket clientSocket = MySkServer.accept();
+        				Socket clientSocket = myServerListen.accept();
         				System.out.println("connection request received"+clientSocket.getRemoteSocketAddress().toString());
         				new Thread(new ClientServer(clientSocket, client.getSubclientMe())).start();
         				
         			}
-
+        			
         		} catch (IOException e) {
         			e.printStackTrace();
         		}

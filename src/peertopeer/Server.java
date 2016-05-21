@@ -90,12 +90,12 @@ public class Server implements Runnable {
 					System.out.println(subClientList.get(0).getIP());
 					outputStream.writeObject(subClientList);
 					outputStream.flush();
-					
+					outputStream.close();
 					log.info("List send");
 					break;
 				case "quit":
-					outputStream.close();
 					inputStream.close();
+					outputStream.close();
 					threadSocket.close();
 					pout.close();
 					log.info("Server closed");
